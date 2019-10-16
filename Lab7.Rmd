@@ -22,11 +22,28 @@ library("tm")  #Contiene tranformaciones para el text mining
 library("wordcloud")
 library(ggplot2) #para gráficos
 ```
-# Descripción de los datos  
 
-
+# Obteniendo el acceso a Twitter
+Para la realización de este laboratorio se decidió utilizar Twitter, para ello se creó una APP desde la página para developers de Twitter, donde se debía de obtener la autorización de Twitter para poder tener una APP de developer. Luego, con la autorización fue posible obtener el API y el token para poder obtener los tweets.
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+my.consumer.key = ""
+my.consumer.secret = ""
+my.access.token = "99989439-"
+my.access.token.secret = ""
+my_oauth <- setup_twitter_oauth(consumer_key = my.consumer.key, consumer_secret = my.consumer.secret, access_token = my.access.token, access_secret = my.access.token.secret)
+save(my_oauth, file = "my_oauth.Rdata")
 ```
 
+#Obtención de los datos para el Hashtag TráficoGT
+
+```{r pressure, echo=FALSE}
+search.string <- "#TraficoGT"
+result.term <- searchTwitter(search.string, n = 100)
+head(result.term)
+
+#Se almacena todo en un Data Frame
+
+dataTweets<- twListToDF(result.term)
+write.csv(dataTweets, "tweets.csv")
+```
