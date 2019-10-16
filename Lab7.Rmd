@@ -47,3 +47,27 @@ head(result.term)
 dataTweets<- twListToDF(result.term)
 write.csv(dataTweets, "tweets.csv")
 ```
+
+
+# Limpieza y preprocesamiento
+```{r}
+setwd("/Users/odalisrg/Downloads/Laboratorio7DS")
+tweets <- read_csv("tweets_aux.csv")
+class(tweets)
+
+corpus.tweet <- Corpus(VectorSource(tweets))
+
+# Limpieza
+corpus.tweet <- tm_map(corpus.tweet, content_transformer(tolower))
+corpus.tweet <- tm_map(corpus.tweet, content_transformer(removeNumbers))
+corpus.tweet <- tm_map(corpus.tweet, content_transformer(removePunctuation))
+corpus.tweet <- tm_map(corpus.tweet, stripWhitespace)
+corpus.tweet <- tm_map(corpus.tweet, removeWords,stopwords(kind="es"))
+
+```
+
+
+
+
+
+
