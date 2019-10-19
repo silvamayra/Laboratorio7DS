@@ -32,7 +32,7 @@ Para la realización de este laboratorio se decidió utilizar Twitter, para ello
 
 ```{r pressure, echo=FALSE}
 options(httr_oauth_cache=T)
-my.consumer.key <- "MqlOqVvLnJb5o1xGs0o5Hu23Z "
+my.consumer.key <- "MqlOqVvLnJb5o1xGs0o5Hu23Z"
 my.consumer.secret <- "eNM9IVRcuRNihtJK9glzMOoebFhxrm25z5IpUjGdffrWAz6nQi"
 my.access.token <- "225578097-aDwImEKkCOhVRF6aWwz4KDRsF7VuGi4qn5df7kdk"
 my.access.token.secret <- "5dv2mv7v059gIlMxbKfHpvXtqo5WpwrjfJI4lJXXmFi86"
@@ -51,6 +51,45 @@ head(result.term)
 
 dataTweets<- twListToDF(result.term)
 write.csv(dataTweets, "tweets.csv")
+tweets.text <- sapply(result.term, function(x) x$getText())
+```
+
+
+```{r}
+# Replace blank space (“rt”)
+tweets.text <- gsub("rt", "", tweets.text)
+# Replace @UserName
+tweets.text <- gsub("@\\w+", "", tweets.text)
+# Remove punctuation
+tweets.text <- gsub("[[:punct:]]", "", tweets.text)
+# Remove links
+tweets.text <- gsub("http\\w+", "", tweets.text)
+# Remove tabs
+tweets.text <- gsub("[ |\t]{2,}", "", tweets.text)
+# Remove blank spaces at the beginning
+tweets.text <- gsub("^ ", "", tweets.text)
+# Remove blank spaces at the end
+tweets.text <- gsub(" $", "", tweets.text)
+ 
+# #convert all text to lower case
+tweets.text <- tolower(tweets.text)
+```
+
+```{r}
+if(!require(tm)) {install.packages("tm")}
+library(tm)
+#create corpus
+#clean up by removing stop words
+tweets.corpus <- Corpus(VectorSource(tweets.text))
+tweets.corpus <- tm_map(tweets.corpus, content_transformer(removeNumbers))
+tweets.corpus <- tm_map(tweets.corpus, function(x) removeWords(x,stopwords()))
+```
+
+```{r}
+if(!require(wordcloud)) {install.packages("wordcloud")}
+library(wordcloud)
+#generate wordcloud
+wordcloud(tweets.corpus,min.freq = 2, scale=c(7,0.5),colors=brewer.pal(8, "Dark2"),  random.color= TRUE, random.order = FALSE, max.words = 150)
 ```
 
 

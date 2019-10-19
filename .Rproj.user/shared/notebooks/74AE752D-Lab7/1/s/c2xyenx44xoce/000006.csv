@@ -8,5 +8,4 @@
 "1"," ""Using direct authentication"""
 "1","
 "
-"2","
-"
+"0","save(my_oauth, file = ""my_oauth.Rdata"")"
