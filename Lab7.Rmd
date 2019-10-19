@@ -55,6 +55,8 @@ tweets.text <- sapply(result.term, function(x) x$getText())
 ```
 
 
+# Limpieza y preprocesamiento
+
 ```{r}
 # Replace blank space (“rt”)
 tweets.text <- gsub("rt", "", tweets.text)
@@ -85,6 +87,10 @@ tweets.corpus <- tm_map(tweets.corpus, content_transformer(removeNumbers))
 tweets.corpus <- tm_map(tweets.corpus, function(x) removeWords(x,stopwords()))
 ```
 
+
+# Análisis exploratorio
+
+## Nube de palabras
 ```{r}
 if(!require(wordcloud)) {install.packages("wordcloud")}
 library(wordcloud)
@@ -92,26 +98,29 @@ library(wordcloud)
 wordcloud(tweets.corpus,min.freq = 2, scale=c(7,0.5),colors=brewer.pal(8, "Dark2"),  random.color= TRUE, random.order = FALSE, max.words = 150)
 ```
 
-
-# Limpieza y preprocesamiento
+## Histograma de palabras con más frecuencia
 ```{r}
-setwd("/Users/odalisrg/Downloads/Laboratorio7DS")
-tweets <- read_csv("tweets_aux.csv")
-class(tweets)
+dtm <- DocumentTermMatrix(tweets.corpus)
 
-corpus.tweet <- Corpus(VectorSource(tweets))
+freq <- colSums(as.matrix(dtm))
 
-# Limpieza
-corpus.tweet <- tm_map(corpus.tweet, content_transformer(tolower))
-corpus.tweet <- tm_map(corpus.tweet, content_transformer(removeNumbers))
-corpus.tweet <- tm_map(corpus.tweet, content_transformer(removePunctuation))
-corpus.tweet <- tm_map(corpus.tweet, stripWhitespace)
-corpus.tweet <- tm_map(corpus.tweet, removeWords,stopwords(kind="es"))
+wfTweet <- data.frame(word = names(freq), freq = freq)
+head(wfTweet)
+
+
+HistoR <- ggplot(subset(wfTweet, freq>20), aes(x = reorder(word, -freq), y = freq)) +
+          geom_bar(stat = "identity") + ggtitle("Palabras más frecuentes") +
+          theme(axis.text.x=element_text(angle=45, hjust=1))
+HistoR
 
 ```
 
+## Histograma de palabras con menos frecuencia
+```{r}
+freqWords <- apply(dtm,2,sum)
+freqData <- data.frame(word=names(freqWords), frecuency=as.numeric(freqWords), stringsAsFactors = FALSE)
+freqData<- freqData[order(freqData$frecuency, decreasing=TRUE), ]
+barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20), main = "Palabras menos frecuentes", ylab = "Freq")
 
-
-
-
+```
 
