@@ -31,6 +31,7 @@ library(httr)
 Para la realización de este laboratorio se decidió utilizar Twitter, para ello se creó una APP desde la página para developers de Twitter, donde se debía de obtener la autorización de Twitter para poder tener una APP de developer. Luego, con la autorización fue posible obtener el API y el token para poder obtener los tweets.
 
 ```{r pressure, echo=FALSE}
+options(httr_oauth_cache=T)
 my.consumer.key <- "MqlOqVvLnJb5o1xGs0o5Hu23Z "
 my.consumer.secret <- "eNM9IVRcuRNihtJK9glzMOoebFhxrm25z5IpUjGdffrWAz6nQi"
 my.access.token <- "225578097-aDwImEKkCOhVRF6aWwz4KDRsF7VuGi4qn5df7kdk"
