@@ -25,6 +25,7 @@ library(base64enc)
 library(openssl)
 library(httpuv)
 library(httr)
+
 ```
 
 # Obteniendo el acceso a Twitter
@@ -123,4 +124,25 @@ freqData<- freqData[order(freqData$frecuency, decreasing=TRUE), ]
 barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20), main = "Palabras menos frecuentes", ylab = "Freq")
 
 ```
+
+#Análisis y descubrimientos
+
+Según las palabras más frecuentes, se encontró la palabra 'placa', vamos a indagar que palabras se encuentran asociadas a esta con el fin de poder determinar algún tipo de relación.
+
+```{r}
+tdm <- TermDocumentMatrix(dfCorpus)
+findAssocs(tdm, 'placa', 0.2)
+```
+
+Lo que nos llama la atención es que se relaciona con el apellido "Hernández" y "Charly". Vamos a explorar con que palabras se relacionan: 
+```{r}
+
+findAssocs(tdm, 'charly', 0.2)
+```
+Vemos que la palabra "Charly" se relaciona con palabras similares que las de "placa".
+```{r}
+findAssocs(tdm, 'hernández', 0.2)
+```
+
+Para el caso de Hernández obtuvimos un resultado inesperado, resulta que no posee un valor de correlación mayor a 0.2 en todo el documento con las demás palabras, concluimos que a pesar de estar en las palabras más frecuentes no se relacioa mucho con las otras palabras. 
 
