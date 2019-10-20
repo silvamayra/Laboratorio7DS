@@ -64,6 +64,8 @@ tweets.text <- sapply(result.term, function(x) x$getText())
 tweets.text <- gsub("rt", "", tweets.text)
 # Quitar @Usuario
 tweets.text <- gsub("@\\w+", "", tweets.text)
+# Quitar #Hashtag
+tweets.text <- gsub("#\\S+", "", tweets.text)
 # Quitar puntuaciones
 tweets.text <- gsub("[[:punct:]]", "", tweets.text)
 # Quitar links
@@ -76,8 +78,6 @@ tweets.text <- gsub("^ ", "", tweets.text)
 tweets.text <- gsub(" $", "", tweets.text)
 # Convertir a minúsculas
 tweets.text <- tolower(tweets.text)
-# Quitar #Hashtag
-tweets.text <- gsub("#\\S+", "", tweets.text)
 # Cambio de tildes
 tweets.text <- gsub("á", "a", tweets.text)
 tweets.text <- gsub("é", "e", tweets.text)

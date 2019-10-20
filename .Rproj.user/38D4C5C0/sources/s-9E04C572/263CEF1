@@ -5,16 +5,16 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "2751520618",
+    "hash" : "4064977964",
     "id" : "263CEF1",
-    "lastKnownWriteTime" : 1571530524,
-    "last_content_update" : 1571530524337,
+    "lastKnownWriteTime" : 1571530723,
+    "last_content_update" : 1571530723365,
     "path" : "~/Documents/Ivan Maldonado/UVG/Sexto Semestre/Data Science/Laboratorio7DS/Lab7.Rmd",
     "project_path" : "Lab7.Rmd",
     "properties" : {
-        "cursorPosition" : "79,26",
+        "cursorPosition" : "67,45",
         "last_setup_crc32" : "9E04C572bb338d19",
-        "scrollLine" : "62"
+        "scrollLine" : "59"
     },
     "read_only" : false,
     "read_only_alternatives" : [
