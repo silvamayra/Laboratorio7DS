@@ -9,10 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Librerías a utilizar
-
+# Librerías a utilizar
 ```{r cars}
-#Instalación de paquetes neuevos
+# Instalación de paquetes neuevos en caso no estén descargados
 if(!require(twitteR)) {install.packages("twitteR")}
 if(!require(ROAuth)) {install.packages("ROAuth")}
 if(!require(readr)) {install.packages("readr")}
@@ -24,25 +23,25 @@ if(!require(openssl)) {install.packages("openssl")}
 if(!require(httpuv)) {install.packages("httpuv")}
 if(!require(httr)) {install.packages("httr")}
 
-library("twitteR")
-library("ROAuth")
-library("readr") #Lee los archivos 
-library("tm")  #Contiene tranformaciones para el text mining
-library("wordcloud")
-library(ggplot2) #para gráficos
+# Se mandan a traer las librerías 
+library("twitteR") # Análisis de Twitter
+library("ROAuth") # Accese al API
+library("readr") # Lee los archivos 
+library("tm")  # Tranformaciones para el TM
+library("wordcloud") # Nube de palabras
+library(ggplot2) # Gráficos
 library(base64enc)
 library(openssl)
 library(httpuv)
 library(httr)
-library("SentimentAnalysis")
-library("SnowballC") #Para sentiment analysis
-library(tidytext) #otra para análisis de sentimientos.
+library("SentimentAnalysis") 
+library("SnowballC") # Sentiment analysis
+library(tidytext) # Otro análisis de sentimientos.
 library("syuzhet")
 library(dplyr) 
 library(plyr)
-
-
 ```
+
 
 # Obteniendo el acceso a Twitter
 Para la realización de este laboratorio se decidió utilizar Twitter, para ello se creó una APP desde la página para developers de Twitter, donde se debía de obtener la autorización de Twitter para poder tener una APP de developer. Luego, con la autorización fue posible obtener el API y el token para poder obtener los tweets.
@@ -53,7 +52,10 @@ my.consumer.key <- "MqlOqVvLnJb5o1xGs0o5Hu23Z"
 my.consumer.secret <- "eNM9IVRcuRNihtJK9glzMOoebFhxrm25z5IpUjGdffrWAz6nQi"
 my.access.token <- "225578097-aDwImEKkCOhVRF6aWwz4KDRsF7VuGi4qn5df7kdk"
 my.access.token.secret <- "5dv2mv7v059gIlMxbKfHpvXtqo5WpwrjfJI4lJXXmFi86"
-my_oauth <- setup_twitter_oauth(consumer_key = my.consumer.key, consumer_secret = my.consumer.secret, access_token = my.access.token, access_secret = my.access.token.secret)
+my_oauth <- setup_twitter_oauth(consumer_key = my.consumer.key, 
+                                consumer_secret = my.consumer.secret, 
+                                access_token = my.access.token, 
+                                access_secret = my.access.token.secret)
 save(my_oauth, file = "my_oauth.Rdata")
 ```
 
@@ -101,10 +103,8 @@ tweets.text <- gsub("í", "i", tweets.text)
 tweets.text <- gsub("ó", "o", tweets.text)
 tweets.text <- gsub("ú", "u", tweets.text)
 ```
-Una vez limpio el texto, se prosiguió a realisar el corpus. Cabe mencionar que cuando se creó el corpus se eliminaron las stopwords en español.
+Una vez limpio el texto, se prosiguió a realizar el corpus. Cabe mencionar que cuando se creó el corpus se eliminaron las stopwords en español.
 ```{r}
-if(!require(tm)) {install.packages("tm")}
-library(tm)
 #create corpus
 #clean up by removing stop words
 tweets.corpus <- Corpus(VectorSource(tweets.text))
@@ -118,8 +118,6 @@ tweets.corpus <- tm_map(tweets.corpus, function(x) removeWords(x,stopwords("span
 ## Nube de palabras
 En el worldcloud podemos observar en forma de nube las palabras más repetidas. Se encotró que la palabra con más frecuencia fue "ruta" y "zona". Por otro lado, se obtuvo un error que indicaba que habían varias palabras que no se pudieron plottear, entonces no se sabe que tanto se repitieron en los textos. Es por eso que se realizó un histograma de frecuencias de palabras, donde se obtuvieron la palabras que más se repetían y las que menos se repetían.
 ```{r}
-if(!require(wordcloud)) {install.packages("wordcloud")}
-library(wordcloud)
 #generate wordcloud
 wordcloud(tweets.corpus,min.freq = 2, scale=c(7,0.5),colors=brewer.pal(8, "Dark2"),  random.color= TRUE, random.order = FALSE, max.words = 150)
 ```
@@ -214,8 +212,7 @@ Ahora bien, se analizan cuáles son los comentarios positivos, negativos y neutr
 ```{r}
 # Valor de los sentimientos
 valor <- get_sentiment(dataTweets$text)
-neutral <- word[value==0]
-head(neutral)
+
 # Asignando los valores de sentimientos
 max <- dataTweets$text[valor == max(valor)]
 min <- dataTweets$text[valor == min(valor)]
@@ -225,7 +222,6 @@ min <- dataTweets$text[valor == min(valor)]
 positivo <- dataTweets$text[valor>0]
 tail(positivo)
 ```
-
 
 ### Tweets negativos
 ```{r}
@@ -238,4 +234,14 @@ head(negativo)
 neutral <- dataTweets$text[valor==0]
 tail(neutral,2)
 ```
+
+
+# Conclusiones
+Según el análisis realizado a los tweets del tráfico en Guatemala, se llegaron a las siguientes conclusiones: 
+* Como Ruta al Atlántico es una de las palabras con mucha frencuencia, se puede decir que es una de las rutas con más tráfico en Guatemala. 
+* El segundo sentimiento más alto dentro de los tweets realizados, se muestra un comportamiento negativo ya que se cree que las personas usan este medio para mostrar las molestias acerca del embotellamiento capitalino. 
+* La mayoría de retweets son de ConsejoMontejo, cuyos tweets contienen la palabra UrgenteGT. 
+* La mayoría de tweets negativos informan accidentes o vehículos en las carreteras, mostrando molestia y desesperación.
+* Nos llamó la atención que una de las palabras asociadas a "avenida" era "Bolívar", lo cual muestra coherencia, ya que es una de las rutas con más embotellamiento, al igual que la Atanasio Tzul. 
+* Las rutas siempre son bloqueadas por manifestaciones. 
 
