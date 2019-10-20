@@ -2,10 +2,12 @@
 title: "Laboratorio 7"
 author: "Grupo 10"
 date: "9/10/2019"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -22,8 +24,10 @@ if(!require(base64enc)) {install.packages("base64enc")}
 if(!require(openssl)) {install.packages("openssl")}
 if(!require(httpuv)) {install.packages("httpuv")}
 if(!require(httr)) {install.packages("httr")}
+if(!require(qdapRegex)) {install.packages("qdapRegex")}
 
 # Se mandan a traer las librerías 
+library(qdapRegex)
 library("twitteR") # Análisis de Twitter
 library("ROAuth") # Accese al API
 library("readr") # Lee los archivos 
@@ -59,9 +63,9 @@ my_oauth <- setup_twitter_oauth(consumer_key = my.consumer.key,
 save(my_oauth, file = "my_oauth.Rdata")
 ```
 
-#Obtención de los datos para el Hashtag TráficoGT
-Se utilizaron las librerías *TwitterR* y *ROAuth* para la obtención de los datos y análisis. Se tomó la decisión de utilizar el $#TraficoGt$, con ayuda de las librerias importadas se buscaron los tweets y se creó un data frame a partir de los resultados obtenidos. 
-```{r pressure, echo=FALSE}
+# Obtención de los datos para el Hashtag TráficoGT
+Se utilizaron las librerías *TwitterR* y *ROAuth* para la obtención de los datos y análisis. Se tomó la decisión de utilizar el $\#TraficoGt$, con ayuda de las librerias importadas se buscaron los tweets y se creó un data frame a partir de los resultados obtenidos. 
+```{r}
 search.string <- "#TraficoGT"
 result.term <- searchTwitter(search.string, n = 1000)
 head(result.term)
@@ -94,6 +98,8 @@ tweets.text <- gsub("[ |\t]{2,}", "", tweets.text)
 tweets.text <- gsub("^ ", "", tweets.text)
 # Quitar espacios en blanco del final
 tweets.text <- gsub(" $", "", tweets.text)
+# Quitar emojis
+tweets.text <- gsub('\\p{So}|\\p{Cn}', "", tweets.text, perl = TRUE)
 # Convertir a minúsculas
 tweets.text <- tolower(tweets.text)
 # Cambio de tildes
@@ -119,7 +125,8 @@ tweets.corpus <- tm_map(tweets.corpus, function(x) removeWords(x,stopwords("span
 En el worldcloud podemos observar en forma de nube las palabras más repetidas. Se encotró que la palabra con más frecuencia fue "ruta" y "zona". Por otro lado, se obtuvo un error que indicaba que habían varias palabras que no se pudieron plottear, entonces no se sabe que tanto se repitieron en los textos. Es por eso que se realizó un histograma de frecuencias de palabras, donde se obtuvieron la palabras que más se repetían y las que menos se repetían.
 ```{r}
 #generate wordcloud
-wordcloud(tweets.corpus,min.freq = 2, scale=c(7,0.5),colors=brewer.pal(8, "Dark2"),  random.color= TRUE, random.order = FALSE, max.words = 150)
+wordcloud(tweets.corpus,min.freq = 2, scale=c(3,0.5), colors=brewer.pal(8, "Dark2"),  
+          random.color= TRUE, random.order = FALSE, max.words = 150)
 ```
 
 ## Histograma de palabras con más frecuencia
@@ -144,13 +151,16 @@ HistoR
 En el histograma con menos frecuencia encontramos palabras como "pincha", "cuota" y "mezcla".
 ```{r}
 freqWords <- apply(dtm,2,sum)
-freqData <- data.frame(word=names(freqWords), frecuency=as.numeric(freqWords), stringsAsFactors = FALSE)
+freqData <- data.frame(word=names(freqWords), frecuency=as.numeric(freqWords), 
+                       stringsAsFactors = FALSE)
 freqData<- freqData[order(freqData$frecuency, decreasing=TRUE), ]
-barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20), main = "Palabras menos frecuentes", ylab = "Freq")
+barplot(tail(freqData$frecuency, n = 20), 
+        names.arg = tail(freqData$word, n = 20), 
+        main = "Palabras menos frecuentes", ylab = "Freq")
 
 ```
 
-#Análisis y descubrimientos
+## Asociasión de palabras
 
 
 Según las palabras más frecuentes, se encontró la palabra 'zona', vamos a indagar que palabras se encuentran asociadas a esta con el fin de poder determinar algún tipo de relación.
@@ -165,7 +175,9 @@ findAssocs(dtm, 'zona', 0.2)
 findAssocs(dtm, 'avenida', 0.2)
 
 ```
+
 Vemos que la palabra "avenida" se relaciona  con advertencias o incidentes tipo "volcado", "precaucion" y lugares como "montufar", "verbena", "chinautla" y nos llama la atención la palabra "manifestaciongt". Por otro lado se menciona la palabra "bolivar" que hace referencia a la avenida Bolivar, una de las rutas con más tráfico en Guatemala.
+
 ```{r}
 findAssocs(dtm, 'ruta', 0.2)
 ```
@@ -205,8 +217,11 @@ ggplot(data=Sentimentscores,aes(x=Sentimiento,y=Puntaje))+geom_bar(aes(fill=Sent
 ```
 
 Ahora bien, se analizan cuáles son los comentarios positivos, negativos y neutros dentro de nuestra data de tweets. Se observa lo siguiente: 
+
 * *Tweets positivos*: Se habla la alegría que hay en las nuevas rutas, mensajes de precaución, piden ayuda para que los policías revisen pasos, rutas o desniveles en las carreteras. 
+
 * *Tweets negativos*: Se habla acerca de accidentes automovilísticos, fallas mecánicas que obstruyen el paso en las carreteras.  
+
 * *Tweets neutros*: No se observa nada relevante, solo alertas o avisos, tales como el tráfico usual de cada quincena y autos que se suben a las banquetas.
 
 ```{r}
@@ -238,10 +253,16 @@ tail(neutral,2)
 
 # Conclusiones
 Según el análisis realizado a los tweets del tráfico en Guatemala, se llegaron a las siguientes conclusiones: 
+
 * Como Ruta al Atlántico es una de las palabras con mucha frencuencia, se puede decir que es una de las rutas con más tráfico en Guatemala. 
+
 * El segundo sentimiento más alto dentro de los tweets realizados, se muestra un comportamiento negativo ya que se cree que las personas usan este medio para mostrar las molestias acerca del embotellamiento capitalino. 
+
 * La mayoría de retweets son de ConsejoMontejo, cuyos tweets contienen la palabra UrgenteGT. 
+
 * La mayoría de tweets negativos informan accidentes o vehículos en las carreteras, mostrando molestia y desesperación.
+
 * Nos llamó la atención que una de las palabras asociadas a "avenida" era "Bolívar", lo cual muestra coherencia, ya que es una de las rutas con más embotellamiento, al igual que la Atanasio Tzul. 
+
 * Las rutas siempre son bloqueadas por manifestaciones. 
 
