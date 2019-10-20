@@ -45,11 +45,12 @@ save(my_oauth, file = "my_oauth.Rdata")
 Se utilizaron las librerías *TwitterR* y *ROAuth* para la obtención de los datos y análisis. Se tomó la decisión de utilizar el $#TraficoGt$, con ayuda de las librerias importadas se buscaron los tweets y se creó un data frame a partir de los resultados obtenidos. 
 ```{r pressure, echo=FALSE}
 search.string <- "#TraficoGT"
-result.term <- searchTwitter(search.string, n = 100)
+result.term <- searchTwitter(search.string, n = 1000)
 head(result.term)
 
 #Se almacena todo en un Data Frame
-
+```
+```{r}
 dataTweets<- twListToDF(result.term)
 write.csv(dataTweets, "tweets.csv")
 tweets.text <- sapply(result.term, function(x) x$getText())
@@ -59,23 +60,30 @@ tweets.text <- sapply(result.term, function(x) x$getText())
 # Limpieza y preprocesamiento
 
 ```{r}
-# Replace blank space (“rt”)
+# Quitar (“rt”)
 tweets.text <- gsub("rt", "", tweets.text)
-# Replace @UserName
+# Quitar @Usuario
 tweets.text <- gsub("@\\w+", "", tweets.text)
-# Remove punctuation
+# Quitar puntuaciones
 tweets.text <- gsub("[[:punct:]]", "", tweets.text)
-# Remove links
+# Quitar links
 tweets.text <- gsub("http\\w+", "", tweets.text)
-# Remove tabs
+# Quitar tabs
 tweets.text <- gsub("[ |\t]{2,}", "", tweets.text)
-# Remove blank spaces at the beginning
+# Quitar espacios en blanco del principio
 tweets.text <- gsub("^ ", "", tweets.text)
-# Remove blank spaces at the end
+# Quitar espacios en blanco del final
 tweets.text <- gsub(" $", "", tweets.text)
- 
-# #convert all text to lower case
+# Convertir a minúsculas
 tweets.text <- tolower(tweets.text)
+# Quitar #Hashtag
+tweets.text <- gsub("#\\S+", "", tweets.text)
+# Cambio de tildes
+tweets.text <- gsub("á", "a", tweets.text)
+tweets.text <- gsub("é", "e", tweets.text)
+tweets.text <- gsub("í", "i", tweets.text)
+tweets.text <- gsub("ó", "o", tweets.text)
+tweets.text <- gsub("ú", "u", tweets.text)
 ```
 
 ```{r}
@@ -85,7 +93,7 @@ library(tm)
 #clean up by removing stop words
 tweets.corpus <- Corpus(VectorSource(tweets.text))
 tweets.corpus <- tm_map(tweets.corpus, content_transformer(removeNumbers))
-tweets.corpus <- tm_map(tweets.corpus, function(x) removeWords(x,stopwords()))
+tweets.corpus <- tm_map(tweets.corpus, function(x) removeWords(x,stopwords("spanish")))
 ```
 
 
@@ -109,7 +117,7 @@ wfTweet <- data.frame(word = names(freq), freq = freq)
 head(wfTweet)
 
 
-HistoR <- ggplot(subset(wfTweet, freq>20), aes(x = reorder(word, -freq), y = freq)) +
+HistoR <- ggplot(subset(wfTweet, freq>100), aes(x = reorder(word, -freq), y = freq)) +
           geom_bar(stat = "identity") + ggtitle("Palabras más frecuentes") +
           theme(axis.text.x=element_text(angle=45, hjust=1))
 HistoR
@@ -130,18 +138,18 @@ barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20
 Según las palabras más frecuentes, se encontró la palabra 'placa', vamos a indagar que palabras se encuentran asociadas a esta con el fin de poder determinar algún tipo de relación.
 
 ```{r}
-tdm <- TermDocumentMatrix(dfCorpus)
-findAssocs(tdm, 'placa', 0.2)
+
+findAssocs(dtm, 'placa', 0.2)
 ```
 
 Lo que nos llama la atención es que se relaciona con el apellido "Hernández" y "Charly". Vamos a explorar con que palabras se relacionan: 
 ```{r}
 
-findAssocs(tdm, 'charly', 0.2)
+findAssocs(dtm, 'charly', 0.2)
 ```
 Vemos que la palabra "Charly" se relaciona con palabras similares que las de "placa".
 ```{r}
-findAssocs(tdm, 'hernández', 0.2)
+findAssocs(dtm, 'hernández', 0.2)
 ```
 
 Para el caso de Hernández obtuvimos un resultado inesperado, resulta que no posee un valor de correlación mayor a 0.2 en todo el documento con las demás palabras, concluimos que a pesar de estar en las palabras más frecuentes no se relacioa mucho con las otras palabras. 

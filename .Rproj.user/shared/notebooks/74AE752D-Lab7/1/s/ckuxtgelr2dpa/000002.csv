@@ -5,5 +5,5 @@
 "0","tweets.corpus <- Corpus(VectorSource(tweets.text))"
 "0","tweets.corpus <- tm_map(tweets.corpus, content_transformer(removeNumbers))"
 "2","transformation drops documents"
-"0","tweets.corpus <- tm_map(tweets.corpus, function(x) removeWords(x,stopwords()))"
+"0","tweets.corpus <- tm_map(tweets.corpus, function(x) removeWords(x,stopwords(""spanish"")))"
 "2","transformation drops documents"
