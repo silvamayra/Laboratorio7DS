@@ -13,8 +13,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r cars}
 #Instalación de paquetes neuevos
-#install.packages("twitteR")
-#install.packages("ROAuth")
+if(!require(twitteR)) {install.packages("twitteR")}
+if(!require(ROAuth)) {install.packages("ROAuth")}
+if(!require(readr)) {install.packages("readr")}
+if(!require(tm)) {install.packages("tm")}
+if(!require(wordcloud)) {install.packages("wordcloud")}
+if(!require(ggplot2)) {install.packages("ggplot2")}
+if(!require(base64enc)) {install.packages("base64enc")}
+if(!require(openssl)) {install.packages("openssl")}
+if(!require(httpuv)) {install.packages("httpuv")}
+if(!require(httr)) {install.packages("httr")}
+
 library("twitteR")
 library("ROAuth")
 library("readr") #Lee los archivos 
