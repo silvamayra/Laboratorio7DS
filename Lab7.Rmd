@@ -185,6 +185,7 @@ Observamos que la mayoría son retweets de ConsejoMontejo y que contienen la pal
 
 
 ## Análisis de sentimientos
+Con el fin de determinar la razón o la actitud de los usuarios que publican tweets usando el hashtag #TraficoGT, se decidió realizar un análisis de sentimientos y así determinar si la mayoría de tweets son positivos o negativos. En este caso, vemos que la mayoría de tweets muestran confianza/seguridad y una segunda parte muestra negativismo. Esto posiblemente se debe a que la mayoría de guatemaltecos saben con certeza que en ciertas áreas de la ciudad o del país hay bastante embotellamiento (por lo que muestran seguridad en sus tweets); por otra parte, el negativismo se debe a que nadie le gusta el tráfico y usualmente se expresa en esta red social para desahogar su frustramiento. 
 ```{r}
 senti.tweets <-get_nrc_sentiment(as.vector(dataTweets$text))
 # Total de cada sentimiento
@@ -200,6 +201,36 @@ ggplot(data=Sentimentscores,aes(x=Sentimiento,y=Puntaje))+geom_bar(aes(fill=Sent
   xlab("Sentimiento")+ylab("Puntaje")+ggtitle("Sentimientos de las personas con tweets acerca del tráfico en Guatemala")
 ```
 
+Ahora bien, se analizan cuáles son los comentarios positivos, negativos y neutros dentro de nuestra data de tweets. Se observa lo siguiente: 
+* *Tweets positivos*: Se habla la alegría que hay en las nuevas rutas, mensajes de precaución, piden ayuda para que los policías revisen pasos, rutas o desniveles en las carreteras. 
+* *Tweets negativos*: Se habla acerca de accidentes automovilísticos, fallas mecánicas que obstruyen el paso en las carreteras.  
+* *Tweets neutros*: No se observa nada relevante, solo alertas o avisos, tales como el tráfico usual de cada quincena y autos que se suben a las banquetas.
+
+```{r}
+# Valor de los sentimientos
+valor <- get_sentiment(dataTweets$text)
+neutral <- word[value==0]
+head(neutral)
+# Asignando los valores de sentimientos
+max <- dataTweets$text[valor == max(valor)]
+min <- dataTweets$text[valor == min(valor)]
+```
+### Tweets positivos
+```{r}
+positivo <- dataTweets$text[valor>0]
+tail(positivo)
+```
 
 
+### Tweets negativos
+```{r}
+negativo <- dataTweets$text[valor<0]
+head(negativo)
+```
+
+### Tweets neutros
+```{r}
+neutral <- dataTweets$text[valor==0]
+tail(neutral,2)
+```
 
