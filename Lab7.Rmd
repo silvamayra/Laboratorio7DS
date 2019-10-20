@@ -34,6 +34,13 @@ library(base64enc)
 library(openssl)
 library(httpuv)
 library(httr)
+library("SentimentAnalysis")
+library("SnowballC") #Para sentiment analysis
+library(tidytext) #otra para análisis de sentimientos.
+library("syuzhet")
+library(dplyr) 
+library(plyr)
+
 
 ```
 
@@ -142,9 +149,7 @@ barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20
 
 ```
 
-#Análisis y descubrimientos
-
-
+## Asociasión de palabras
 Según las palabras más frecuentes, se encontró la palabra 'zona', vamos a indagar que palabras se encuentran asociadas a esta con el fin de poder determinar algún tipo de relación.
 
 ```{r}
@@ -177,3 +182,24 @@ head(rtMost,10)
 ```
 
 Observamos que la mayoría son retweets de ConsejoMontejo y que contienen la palabra "UrgenteGt"
+
+
+## Análisis de sentimientos
+```{r}
+senti.tweets <-get_nrc_sentiment(as.vector(dataTweets$text))
+# Total de cada sentimiento
+Sentimentscores <-data.frame(colSums(senti.tweets[,]))
+
+names(Sentimentscores)<-"Puntaje"
+Sentimentscores <-cbind("Sentimiento"=rownames(Sentimentscores),Sentimentscores)
+rownames(Sentimentscores)<-NULL
+
+# Se grafica los puntajes de cada sentimiento
+ggplot(data=Sentimentscores,aes(x=Sentimiento,y=Puntaje))+geom_bar(aes(fill=Sentimiento),stat = "identity")+
+  theme(legend.position="none")+
+  xlab("Sentimiento")+ylab("Puntaje")+ggtitle("Sentimientos de las personas con tweets acerca del tráfico en Guatemala")
+```
+
+
+
+
