@@ -1,0 +1,4 @@
+"0","txandrt <- dataTweets[c(1,12)]"
+"0","rt<-txandrt[order(txandrt$retweetCount, decreasing = TRUE),] "
+"0","rtMost <-rt[!duplicated(rt),]"
+"0","head(rtMost,10)"

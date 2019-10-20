@@ -1,0 +1,6 @@
+"0","dtm <- DocumentTermMatrix(tweets.corpus)"
+"0",""
+"0","freq <- colSums(as.matrix(dtm))"
+"0",""
+"0","wfTweet <- data.frame(word = names(freq), freq = freq)"
+"0","head(wfTweet)"

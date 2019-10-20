@@ -1,3 +1,0 @@
-"0","dataTweets<- twListToDF(result.term)"
-"0","write.csv(dataTweets, ""tweets.csv"")"
-"0","tweets.text <- sapply(result.term, function(x) x$getText())"

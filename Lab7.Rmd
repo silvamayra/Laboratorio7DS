@@ -74,7 +74,7 @@ tweets.text <- sapply(result.term, function(x) x$getText())
 
 
 # Limpieza y preprocesamiento
-
+Se comenzó eliminando la palabra "rt" debido a que se observó que los usuarios realizaban "rt" de tipo comentario. Ademas, cuando se hace esto aparece el nombre del usuario al cual rwtweetearon, entonces se prosiguió a eliminar también los usuarios. Acontinuación se eliminaron los hastags debido a que era lo que estabamos utilizando para filtrar los tweets que teníamos. Por último se realizó una limpieza normal de texto. Cabe mencionar que se eliminaron las tildes para evitar palabras repetidas escritas de diferente manera, dado que algunas personas escriben con tildes y otras no.
 ```{r}
 # Quitar (“rt”)
 tweets.text <- gsub("rt", "", tweets.text)
@@ -101,7 +101,7 @@ tweets.text <- gsub("í", "i", tweets.text)
 tweets.text <- gsub("ó", "o", tweets.text)
 tweets.text <- gsub("ú", "u", tweets.text)
 ```
-
+Una vez limpio el texto, se prosiguió a realisar el corpus. Cabe mencionar que cuando se creó el corpus se eliminaron las stopwords en español.
 ```{r}
 if(!require(tm)) {install.packages("tm")}
 library(tm)
@@ -116,6 +116,7 @@ tweets.corpus <- tm_map(tweets.corpus, function(x) removeWords(x,stopwords("span
 # Análisis exploratorio
 
 ## Nube de palabras
+En el worldcloud podemos observar en forma de nube las palabras más repetidas. Se encotró que la palabra con más frecuencia fue "ruta" y "zona". Por otro lado, se obtuvo un error que indicaba que habían varias palabras que no se pudieron plottear, entonces no se sabe que tanto se repitieron en los textos. Es por eso que se realizó un histograma de frecuencias de palabras, donde se obtuvieron la palabras que más se repetían y las que menos se repetían.
 ```{r}
 if(!require(wordcloud)) {install.packages("wordcloud")}
 library(wordcloud)
@@ -124,6 +125,7 @@ wordcloud(tweets.corpus,min.freq = 2, scale=c(7,0.5),colors=brewer.pal(8, "Dark2
 ```
 
 ## Histograma de palabras con más frecuencia
+Para el histograma de palabras con más frecuencia, se plottearon la palabras que tenían una frecuencia mayor a 50. Como se mencionó en los comentarios de worlcloud, hubieron palabras que no se pudieron plottear. Sin embargo, en este histograma se puede observar una de ellas, "atlántico". Cabe mencionar que la palabra atlántico hace referencia a ruta el atlántico.
 ```{r}
 dtm <- DocumentTermMatrix(tweets.corpus)
 
@@ -133,7 +135,7 @@ wfTweet <- data.frame(word = names(freq), freq = freq)
 head(wfTweet)
 
 
-HistoR <- ggplot(subset(wfTweet, freq>100), aes(x = reorder(word, -freq), y = freq)) +
+HistoR <- ggplot(subset(wfTweet, freq>50), aes(x = reorder(word, -freq), y = freq)) +
           geom_bar(stat = "identity") + ggtitle("Palabras más frecuentes") +
           theme(axis.text.x=element_text(angle=45, hjust=1))
 HistoR
@@ -141,6 +143,7 @@ HistoR
 ```
 
 ## Histograma de palabras con menos frecuencia
+En el histograma con menos frecuencia encontramos palabras como "pincha", "cuota" y "mezcla".
 ```{r}
 freqWords <- apply(dtm,2,sum)
 freqData <- data.frame(word=names(freqWords), frecuency=as.numeric(freqWords), stringsAsFactors = FALSE)
@@ -149,7 +152,9 @@ barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20
 
 ```
 
-## Asociasión de palabras
+#Análisis y descubrimientos
+
+
 Según las palabras más frecuentes, se encontró la palabra 'zona', vamos a indagar que palabras se encuentran asociadas a esta con el fin de poder determinar algún tipo de relación.
 
 ```{r}
@@ -162,12 +167,12 @@ findAssocs(dtm, 'zona', 0.2)
 findAssocs(dtm, 'avenida', 0.2)
 
 ```
-Vemos que la palabra "avenida" se relaciona  con advertencias o incidentes tipo "volcado", "precaucion" y lugares como "montufar", "verbena", "chinautla" y nos llama la atención la palabra "manifestaciongt". 
+Vemos que la palabra "avenida" se relaciona  con advertencias o incidentes tipo "volcado", "precaucion" y lugares como "montufar", "verbena", "chinautla" y nos llama la atención la palabra "manifestaciongt". Por otro lado se menciona la palabra "bolivar" que hace referencia a la avenida Bolivar, una de las rutas con más tráfico en Guatemala.
 ```{r}
 findAssocs(dtm, 'ruta', 0.2)
 ```
 
-También decidimos analizar la palabra "ruta", la palabra que presenta mayor correlación es la de "atlántico", lo cual nos lleva a cuestionarnos: ¿acaso se realizan mayor cantidad de reportes de tránsito sobre la Ruta al Atlántico.
+También decidimos analizar la palabra "ruta", la palabra que presenta mayor correlación es la de "atlántico", lo cual nos lleva a cuestionarnos: ¿acaso se realizan mayor cantidad de reportes de tránsito sobre la Ruta al Atlántico?
 
 Así también vemos que se relaciona bastante con otras carreteras como la Interamericanta, Pacífico y Salvador. Otro hecho que nos llama la atención es su relación con las palabras "bloquean", "entrada" y "manifestantes" lo cual nos lleva a inferir que también se reportan con mayor frecuencia los bloqueos que realizan los manifestantes.
 

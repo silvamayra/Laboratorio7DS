@@ -13,8 +13,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r cars}
 #Instalación de paquetes neuevos
-#install.packages("twitteR")
-#install.packages("ROAuth")
+if(!require(twitteR)) {install.packages("twitteR")}
+if(!require(ROAuth)) {install.packages("ROAuth")}
+if(!require(readr)) {install.packages("readr")}
+if(!require(tm)) {install.packages("tm")}
+if(!require(wordcloud)) {install.packages("wordcloud")}
+if(!require(ggplot2)) {install.packages("ggplot2")}
+if(!require(base64enc)) {install.packages("base64enc")}
+if(!require(openssl)) {install.packages("openssl")}
+if(!require(httpuv)) {install.packages("httpuv")}
+if(!require(httr)) {install.packages("httr")}
+
 library("twitteR")
 library("ROAuth")
 library("readr") #Lee los archivos 
@@ -25,6 +34,13 @@ library(base64enc)
 library(openssl)
 library(httpuv)
 library(httr)
+library("SentimentAnalysis")
+library("SnowballC") #Para sentiment analysis
+library(tidytext) #otra para análisis de sentimientos.
+library("syuzhet")
+library(dplyr) 
+library(plyr)
+
 
 ```
 
@@ -58,7 +74,7 @@ tweets.text <- sapply(result.term, function(x) x$getText())
 
 
 # Limpieza y preprocesamiento
-
+Se comenzó eliminando la palabra "rt" debido a que se observó que los usuarios realizaban "rt" de tipo comentario. Ademas, cuando se hace esto aparece el nombre del usuario al cual rwtweetearon, entonces se prosiguió a eliminar también los usuarios. Acontinuación se eliminaron los hastags debido a que era lo que estabamos utilizando para filtrar los tweets que teníamos. Por último se realizó una limpieza normal de texto. Cabe mencionar que se eliminaron las tildes para evitar palabras repetidas escritas de diferente manera, dado que algunas personas escriben con tildes y otras no.
 ```{r}
 # Quitar (“rt”)
 tweets.text <- gsub("rt", "", tweets.text)
@@ -85,7 +101,7 @@ tweets.text <- gsub("í", "i", tweets.text)
 tweets.text <- gsub("ó", "o", tweets.text)
 tweets.text <- gsub("ú", "u", tweets.text)
 ```
-
+Una vez limpio el texto, se prosiguió a realisar el corpus. Cabe mencionar que cuando se creó el corpus se eliminaron las stopwords en español.
 ```{r}
 if(!require(tm)) {install.packages("tm")}
 library(tm)
@@ -100,6 +116,7 @@ tweets.corpus <- tm_map(tweets.corpus, function(x) removeWords(x,stopwords("span
 # Análisis exploratorio
 
 ## Nube de palabras
+En el worldcloud podemos observar en forma de nube las palabras más repetidas. Se encotró que la palabra con más frecuencia fue "ruta" y "zona". Por otro lado, se obtuvo un error que indicaba que habían varias palabras que no se pudieron plottear, entonces no se sabe que tanto se repitieron en los textos. Es por eso que se realizó un histograma de frecuencias de palabras, donde se obtuvieron la palabras que más se repetían y las que menos se repetían.
 ```{r}
 if(!require(wordcloud)) {install.packages("wordcloud")}
 library(wordcloud)
@@ -108,6 +125,7 @@ wordcloud(tweets.corpus,min.freq = 2, scale=c(7,0.5),colors=brewer.pal(8, "Dark2
 ```
 
 ## Histograma de palabras con más frecuencia
+Para el histograma de palabras con más frecuencia, se plottearon la palabras que tenían una frecuencia mayor a 50. Como se mencionó en los comentarios de worlcloud, hubieron palabras que no se pudieron plottear. Sin embargo, en este histograma se puede observar una de ellas, "atlántico". Cabe mencionar que la palabra atlántico hace referencia a ruta el atlántico.
 ```{r}
 dtm <- DocumentTermMatrix(tweets.corpus)
 
@@ -117,7 +135,7 @@ wfTweet <- data.frame(word = names(freq), freq = freq)
 head(wfTweet)
 
 
-HistoR <- ggplot(subset(wfTweet, freq>100), aes(x = reorder(word, -freq), y = freq)) +
+HistoR <- ggplot(subset(wfTweet, freq>50), aes(x = reorder(word, -freq), y = freq)) +
           geom_bar(stat = "identity") + ggtitle("Palabras más frecuentes") +
           theme(axis.text.x=element_text(angle=45, hjust=1))
 HistoR
@@ -125,6 +143,7 @@ HistoR
 ```
 
 ## Histograma de palabras con menos frecuencia
+En el histograma con menos frecuencia encontramos palabras como "pincha", "cuota" y "mezcla".
 ```{r}
 freqWords <- apply(dtm,2,sum)
 freqData <- data.frame(word=names(freqWords), frecuency=as.numeric(freqWords), stringsAsFactors = FALSE)
@@ -135,22 +154,88 @@ barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20
 
 #Análisis y descubrimientos
 
-Según las palabras más frecuentes, se encontró la palabra 'placa', vamos a indagar que palabras se encuentran asociadas a esta con el fin de poder determinar algún tipo de relación.
+
+Según las palabras más frecuentes, se encontró la palabra 'zona', vamos a indagar que palabras se encuentran asociadas a esta con el fin de poder determinar algún tipo de relación.
 
 ```{r}
 
-findAssocs(dtm, 'placa', 0.2)
+findAssocs(dtm, 'zona', 0.2)
 ```
 
-Lo que nos llama la atención es que se relaciona con el apellido "Hernández" y "Charly". Vamos a explorar con que palabras se relacionan: 
 ```{r}
 
-findAssocs(dtm, 'charly', 0.2)
+findAssocs(dtm, 'avenida', 0.2)
+
 ```
-Vemos que la palabra "Charly" se relaciona con palabras similares que las de "placa".
+Vemos que la palabra "avenida" se relaciona  con advertencias o incidentes tipo "volcado", "precaucion" y lugares como "montufar", "verbena", "chinautla" y nos llama la atención la palabra "manifestaciongt". Por otro lado se menciona la palabra "bolivar" que hace referencia a la avenida Bolivar, una de las rutas con más tráfico en Guatemala.
 ```{r}
-findAssocs(dtm, 'hernández', 0.2)
+findAssocs(dtm, 'ruta', 0.2)
 ```
 
-Para el caso de Hernández obtuvimos un resultado inesperado, resulta que no posee un valor de correlación mayor a 0.2 en todo el documento con las demás palabras, concluimos que a pesar de estar en las palabras más frecuentes no se relacioa mucho con las otras palabras. 
+También decidimos analizar la palabra "ruta", la palabra que presenta mayor correlación es la de "atlántico", lo cual nos lleva a cuestionarnos: ¿acaso se realizan mayor cantidad de reportes de tránsito sobre la Ruta al Atlántico?
+
+Así también vemos que se relaciona bastante con otras carreteras como la Interamericanta, Pacífico y Salvador. Otro hecho que nos llama la atención es su relación con las palabras "bloquean", "entrada" y "manifestantes" lo cual nos lleva a inferir que también se reportan con mayor frecuencia los bloqueos que realizan los manifestantes.
+
+
+## Analizando los retweets
+ Para ello, se creó un data frame que contuviera solamente el texto y la frecuencia de Retweets que obtuvo, a partir de el con la función *order* se colocaron en orden descendente y se mostrarán los primeros 10.
+```{r}
+txandrt <- dataTweets[c(1,12)]
+rt<-txandrt[order(txandrt$retweetCount, decreasing = TRUE),] 
+rtMost <-rt[!duplicated(rt),]
+head(rtMost,10)
+```
+
+Observamos que la mayoría son retweets de ConsejoMontejo y que contienen la palabra "UrgenteGt"
+
+
+## Análisis de sentimientos
+Con el fin de determinar la razón o la actitud de los usuarios que publican tweets usando el hashtag #TraficoGT, se decidió realizar un análisis de sentimientos y así determinar si la mayoría de tweets son positivos o negativos. En este caso, vemos que la mayoría de tweets muestran confianza/seguridad y una segunda parte muestra negativismo. Esto posiblemente se debe a que la mayoría de guatemaltecos saben con certeza que en ciertas áreas de la ciudad o del país hay bastante embotellamiento (por lo que muestran seguridad en sus tweets); por otra parte, el negativismo se debe a que nadie le gusta el tráfico y usualmente se expresa en esta red social para desahogar su frustramiento. 
+```{r}
+senti.tweets <-get_nrc_sentiment(as.vector(dataTweets$text))
+# Total de cada sentimiento
+Sentimentscores <-data.frame(colSums(senti.tweets[,]))
+
+names(Sentimentscores)<-"Puntaje"
+Sentimentscores <-cbind("Sentimiento"=rownames(Sentimentscores),Sentimentscores)
+rownames(Sentimentscores)<-NULL
+
+# Se grafica los puntajes de cada sentimiento
+ggplot(data=Sentimentscores,aes(x=Sentimiento,y=Puntaje))+geom_bar(aes(fill=Sentimiento),stat = "identity")+
+  theme(legend.position="none")+
+  xlab("Sentimiento")+ylab("Puntaje")+ggtitle("Sentimientos de las personas con tweets acerca del tráfico en Guatemala")
+```
+
+Ahora bien, se analizan cuáles son los comentarios positivos, negativos y neutros dentro de nuestra data de tweets. Se observa lo siguiente: 
+* *Tweets positivos*: Se habla la alegría que hay en las nuevas rutas, mensajes de precaución, piden ayuda para que los policías revisen pasos, rutas o desniveles en las carreteras. 
+* *Tweets negativos*: Se habla acerca de accidentes automovilísticos, fallas mecánicas que obstruyen el paso en las carreteras.  
+* *Tweets neutros*: No se observa nada relevante, solo alertas o avisos, tales como el tráfico usual de cada quincena y autos que se suben a las banquetas.
+
+```{r}
+# Valor de los sentimientos
+valor <- get_sentiment(dataTweets$text)
+neutral <- word[value==0]
+head(neutral)
+# Asignando los valores de sentimientos
+max <- dataTweets$text[valor == max(valor)]
+min <- dataTweets$text[valor == min(valor)]
+```
+### Tweets positivos
+```{r}
+positivo <- dataTweets$text[valor>0]
+tail(positivo)
+```
+
+
+### Tweets negativos
+```{r}
+negativo <- dataTweets$text[valor<0]
+head(negativo)
+```
+
+### Tweets neutros
+```{r}
+neutral <- dataTweets$text[valor==0]
+tail(neutral,2)
+```
 

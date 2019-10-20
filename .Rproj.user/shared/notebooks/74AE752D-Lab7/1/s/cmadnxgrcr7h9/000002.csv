@@ -1,0 +1,5 @@
+"0","freqWords <- apply(dtm,2,sum)"
+"0","freqData <- data.frame(word=names(freqWords), frecuency=as.numeric(freqWords), stringsAsFactors = FALSE)"
+"0","freqData<- freqData[order(freqData$frecuency, decreasing=TRUE), ]"
+"0","barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20), main = ""Palabras menos frecuentes"", ylab = ""Freq"")"
+"0",""

@@ -1,0 +1,78 @@
+"0","#Instalación de paquetes neuevos"
+"0","if(!require(twitteR)) {install.packages(""twitteR"")}"
+"0","if(!require(ROAuth)) {install.packages(""ROAuth"")}"
+"0","if(!require(readr)) {install.packages(""readr"")}"
+"0","if(!require(tm)) {install.packages(""tm"")}"
+"0","if(!require(wordcloud)) {install.packages(""wordcloud"")}"
+"0","if(!require(ggplot2)) {install.packages(""ggplot2"")}"
+"0","if(!require(base64enc)) {install.packages(""base64enc"")}"
+"0","if(!require(openssl)) {install.packages(""openssl"")}"
+"0","if(!require(httpuv)) {install.packages(""httpuv"")}"
+"0","if(!require(httr)) {install.packages(""httr"")}"
+"0",""
+"0","library(""twitteR"")"
+"0","library(""ROAuth"")"
+"0","library(""readr"") #Lee los archivos "
+"0","library(""tm"")  #Contiene tranformaciones para el text mining"
+"0","library(""wordcloud"")"
+"0","library(ggplot2) #para gráficos"
+"0","library(base64enc)"
+"0","library(openssl)"
+"0","library(httpuv)"
+"0","library(httr)"
+"0","library(""SentimentAnalysis"")"
+"2","
+Attaching package: ‘SentimentAnalysis’
+
+"
+"2","The following object is masked from ‘package:base’:
+
+    write
+
+"
+"0","library(""SnowballC"") #Para sentiment analysis"
+"0","library(tidytext) #otra para análisis de sentimientos."
+"0","library(""syuzhet"")"
+"0","library(dplyr) "
+"2","
+Attaching package: ‘dplyr’
+
+"
+"2","The following objects are masked from ‘package:twitteR’:
+
+    id, location
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"0","library(plyr)"
+"2","--------------------------------------------------------------------------------------------------------------------------------
+"
+"2","You have loaded plyr after dplyr - this is likely to cause problems.
+If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+library(plyr); library(dplyr)
+"
+"2","--------------------------------------------------------------------------------------------------------------------------------
+"
+"2","
+Attaching package: ‘plyr’
+
+"
+"2","The following objects are masked from ‘package:dplyr’:
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise, summarize
+
+"
+"2","The following object is masked from ‘package:twitteR’:
+
+    id
+
+"
