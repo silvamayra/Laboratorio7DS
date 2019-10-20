@@ -144,22 +144,36 @@ barplot(tail(freqData$frecuency, n = 20), names.arg = tail(freqData$word, n = 20
 
 #Análisis y descubrimientos
 
-Según las palabras más frecuentes, se encontró la palabra 'placa', vamos a indagar que palabras se encuentran asociadas a esta con el fin de poder determinar algún tipo de relación.
+
+Según las palabras más frecuentes, se encontró la palabra 'zona', vamos a indagar que palabras se encuentran asociadas a esta con el fin de poder determinar algún tipo de relación.
 
 ```{r}
 
-findAssocs(dtm, 'placa', 0.2)
+findAssocs(dtm, 'zona', 0.2)
 ```
 
-Lo que nos llama la atención es que se relaciona con el apellido "Hernández" y "Charly". Vamos a explorar con que palabras se relacionan: 
 ```{r}
 
-findAssocs(dtm, 'charly', 0.2)
+findAssocs(dtm, 'avenida', 0.2)
+
 ```
-Vemos que la palabra "Charly" se relaciona con palabras similares que las de "placa".
+Vemos que la palabra "avenida" se relaciona  con advertencias o incidentes tipo "volcado", "precaucion" y lugares como "montufar", "verbena", "chinautla" y nos llama la atención la palabra "manifestaciongt". 
 ```{r}
-findAssocs(dtm, 'hernández', 0.2)
+findAssocs(dtm, 'ruta', 0.2)
 ```
 
-Para el caso de Hernández obtuvimos un resultado inesperado, resulta que no posee un valor de correlación mayor a 0.2 en todo el documento con las demás palabras, concluimos que a pesar de estar en las palabras más frecuentes no se relacioa mucho con las otras palabras. 
+También decidimos analizar la palabra "ruta", la palabra que presenta mayor correlación es la de "atlántico", lo cual nos lleva a cuestionarnos: ¿acaso se realizan mayor cantidad de reportes de tránsito sobre la Ruta al Atlántico.
 
+Así también vemos que se relaciona bastante con otras carreteras como la Interamericanta, Pacífico y Salvador. Otro hecho que nos llama la atención es su relación con las palabras "bloquean", "entrada" y "manifestantes" lo cual nos lleva a inferir que también se reportan con mayor frecuencia los bloqueos que realizan los manifestantes.
+
+
+## Analizando los retweets
+ Para ello, se creó un data frame que contuviera solamente el texto y la frecuencia de Retweets que obtuvo, a partir de el con la función *order* se colocaron en orden descendente y se mostrarán los primeros 10.
+```{r}
+txandrt <- dataTweets[c(1,12)]
+rt<-txandrt[order(txandrt$retweetCount, decreasing = TRUE),] 
+rtMost <-rt[!duplicated(rt),]
+head(rtMost,10)
+```
+
+Observamos que la mayoría son retweets de ConsejoMontejo y que contienen la palabra "UrgenteGt"
